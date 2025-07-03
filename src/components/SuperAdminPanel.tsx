@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { Users, TrendingUp, DollarSign, Gift, LogOut, User, Search, Filter, Plus, Edit, Eye, CreditCard, BarChart3, Shield } from 'lucide-react';
+import { Users, TrendingUp, DollarSign, Gift, LogOut, User, Search, Filter, Plus, Edit, Eye, CreditCard, BarChart3, Shield, CheckCircle, XCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { mockUsers, mockTransactions } from '../data/mockData';
 import Button from './Button';
 
 const SuperAdminPanel: React.FC = () => {
   const { user, logout, addAmountToUser } = useAuth();
-  const [activeTab, setActiveTab] = useState<'overview' | 'admins' | 'users' | 'transactions' | 'analytics'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'admins' | 'users' | 'transactions' | 'analytics' | 'withdrawals'>('overview');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedAdmin, setSelectedAdmin] = useState<any>(null);
   const [showAddAmountModal, setShowAddAmountModal] = useState(false);
@@ -41,6 +41,40 @@ const SuperAdminPanel: React.FC = () => {
     }
   ];
 
+  // Mock withdrawal data
+  const withdrawalRequests = [
+    {
+      id: 'w1',
+      userId: '2',
+      userName: 'John Doe',
+      userEmail: 'john@example.com',
+      currentStock: 1250,
+      withdrawalAmount: 500,
+      requestDate: '2024-01-25T10:30:00Z',
+      status: 'pending'
+    },
+    {
+      id: 'w2',
+      userId: '3',
+      userName: 'Jane Smith',
+      userEmail: 'jane@example.com',
+      currentStock: 2100,
+      withdrawalAmount: 800,
+      requestDate: '2024-01-24T14:15:00Z',
+      status: 'approved'
+    },
+    {
+      id: 'w3',
+      userId: 'admin1',
+      userName: 'Admin User 1',
+      userEmail: 'admin1@betmaster.com',
+      currentStock: 5000,
+      withdrawalAmount: 2000,
+      requestDate: '2024-01-23T16:45:00Z',
+      status: 'pending'
+    }
+  ];
+
   const totalAdmins = admins.length;
   const totalUsers = mockUsers.filter(u => u.role === 'user').length;
   const totalRevenue = mockUsers.reduce((sum, u) => sum + u.totalSpent, 0);
@@ -63,11 +97,17 @@ const SuperAdminPanel: React.FC = () => {
     }
   };
 
+  const handleWithdrawalAction = (withdrawalId: string, action: 'approve' | 'reject') => {
+    console.log(`${action} withdrawal ${withdrawalId}`);
+    // Implementation would update the withdrawal status
+  };
+
   const tabs = [
     { id: 'overview', label: 'Overview', icon: TrendingUp },
     { id: 'admins', label: 'Admins', icon: Shield },
     { id: 'users', label: 'All Users', icon: Users },
     { id: 'transactions', label: 'Transactions', icon: DollarSign },
+    { id: 'withdrawals', label: 'Withdrawal & Stock', icon: CreditCard },
     { id: 'analytics', label: 'Analytics', icon: BarChart3 }
   ];
 
@@ -392,6 +432,109 @@ const SuperAdminPanel: React.FC = () => {
                         </div>
                       );
                     })}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'withdrawals' && (
+              <div className="space-y-6">
+                <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20">
+                  <h3 className="text-2xl font-bold text-white mb-6">Withdrawal & Stock Management</h3>
+                  
+                  {/* Summary Cards */}
+                  <div className="grid md:grid-cols-3 gap-6 mb-8">
+                    <div className="bg-white/10 backdrop-blur-lg rounded-lg p-4 border border-white/20">
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-white mb-2">
+                          {withdrawalRequests.filter(w => w.status === 'pending').length}
+                        </div>
+                        <div className="text-gray-300 text-sm">Pending Requests</div>
+                      </div>
+                    </div>
+                    <div className="bg-white/10 backdrop-blur-lg rounded-lg p-4 border border-white/20">
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-white mb-2">
+                          ₹{withdrawalRequests.reduce((sum, w) => sum + w.withdrawalAmount, 0)}
+                        </div>
+                        <div className="text-gray-300 text-sm">Total Withdrawal Amount</div>
+                      </div>
+                    </div>
+                    <div className="bg-white/10 backdrop-blur-lg rounded-lg p-4 border border-white/20">
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-white mb-2">
+                          ₹{withdrawalRequests.reduce((sum, w) => sum + w.currentStock, 0)}
+                        </div>
+                        <div className="text-gray-300 text-sm">Total User Stock</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Withdrawal Requests Table */}
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="border-b border-white/20">
+                          <th className="text-left py-3 px-4 font-medium text-gray-300">User</th>
+                          <th className="text-left py-3 px-4 font-medium text-gray-300">Current Stock</th>
+                          <th className="text-left py-3 px-4 font-medium text-gray-300">Withdrawal Request</th>
+                          <th className="text-left py-3 px-4 font-medium text-gray-300">Request Date</th>
+                          <th className="text-left py-3 px-4 font-medium text-gray-300">Status</th>
+                          <th className="text-left py-3 px-4 font-medium text-gray-300">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {withdrawalRequests.map((request) => (
+                          <tr key={request.id} className="border-b border-white/10 hover:bg-white/5">
+                            <td className="py-4 px-4">
+                              <div>
+                                <p className="font-medium text-white">{request.userName}</p>
+                                <p className="text-sm text-gray-300">{request.userEmail}</p>
+                              </div>
+                            </td>
+                            <td className="py-4 px-4 text-white">₹{request.currentStock}</td>
+                            <td className="py-4 px-4 text-yellow-400 font-semibold">₹{request.withdrawalAmount}</td>
+                            <td className="py-4 px-4 text-gray-300">
+                              {new Date(request.requestDate).toLocaleDateString()}
+                            </td>
+                            <td className="py-4 px-4">
+                              <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                                request.status === 'pending' 
+                                  ? 'bg-yellow-600 text-white' 
+                                  : request.status === 'approved'
+                                  ? 'bg-green-600 text-white'
+                                  : 'bg-red-600 text-white'
+                              }`}>
+                                {request.status}
+                              </span>
+                            </td>
+                            <td className="py-4 px-4">
+                              {request.status === 'pending' && (
+                                <div className="flex space-x-2">
+                                  <Button
+                                    onClick={() => handleWithdrawalAction(request.id, 'approve')}
+                                    size="sm"
+                                    className="bg-green-600 hover:bg-green-700"
+                                  >
+                                    <CheckCircle className="w-4 h-4 mr-1" />
+                                    Approve
+                                  </Button>
+                                  <Button
+                                    onClick={() => handleWithdrawalAction(request.id, 'reject')}
+                                    size="sm"
+                                    variant="danger"
+                                    className="bg-red-600 hover:bg-red-700"
+                                  >
+                                    <XCircle className="w-4 h-4 mr-1" />
+                                    Reject
+                                  </Button>
+                                </div>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
                 </div>
               </div>

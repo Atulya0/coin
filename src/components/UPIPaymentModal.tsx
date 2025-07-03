@@ -58,12 +58,14 @@ const UPIPaymentModal: React.FC<UPIPaymentModalProps> = ({
   };
 
   return (
-   <div
-  className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-  onClick={onClose} // 🔁 Close modal on backdrop click
->
-<div className="bg-gray-900 rounded-xl p-4 sm:p-5 w-full max-w-sm sm:max-w-md border border-gray-700 shadow-xl">
-
+    <div
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      <div 
+        className="bg-gray-900 rounded-xl p-4 sm:p-5 w-full max-w-sm sm:max-w-md border border-gray-700 shadow-xl"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-white">Complete Payment</h2>
@@ -83,10 +85,12 @@ const UPIPaymentModal: React.FC<UPIPaymentModalProps> = ({
               <span>{coinPackage.name} x {quantity}</span>
               <span>₹{totalAmount}</span>
             </div>
-            <div className="flex justify-between text-gray-300">
-              <span>Total Coins</span>
-              <span className="text-yellow-400 font-bold">{totalCoins}</span>
-            </div>
+            {totalCoins && (
+              <div className="flex justify-between text-gray-300">
+                <span>Total Coins</span>
+                <span className="text-yellow-400 font-bold">{totalCoins}</span>
+              </div>
+            )}
             <div className="border-t border-gray-600 pt-2 mt-2">
               <div className="flex justify-between text-white font-bold text-lg">
                 <span>Total Amount</span>
